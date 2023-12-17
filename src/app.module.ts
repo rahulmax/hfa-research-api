@@ -9,15 +9,27 @@ import { DataService } from './data/data.service';
 import { DataController } from './data/data.controller';
 import { DataModule } from './data/data.module';
 import { CacheService } from './cache/cache.service';
+import { redisStore } from 'cache-manager-redis-yet';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     CoingeckoModule,
     ScheduleModule.forRoot(),
     HttpModule,
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      ttl: 24 * 60 * 60,
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {
+            host: process.env.REDIS_HOST,
+            port: parseInt(process.env.REDIS_PORT, 10),
+          },
+          password: process.env.RADIUS_PASSWORD,
+        }),
+        ttl: 24 * 60 * 60,
+      }),
     }),
     DataModule,
   ],
