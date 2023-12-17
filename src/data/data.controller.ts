@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { DataService } from './data.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('coins')
+@UseInterceptors(CacheInterceptor)
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 

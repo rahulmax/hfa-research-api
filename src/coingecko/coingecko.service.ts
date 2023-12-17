@@ -51,7 +51,7 @@ export class CoingeckoService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly cacheService: CacheService
+    private readonly cacheService: CacheService,
   ) {}
   // TODO: Uncomment the function before Release
   // @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
@@ -109,7 +109,7 @@ export class CoingeckoService {
       .get(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart`, {
         params: {
           vs_currency: 'usd',
-          days: 10,
+          days: 1825,
         },
       })
       .subscribe({
