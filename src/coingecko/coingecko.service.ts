@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { Cron } from '@nestjs/schedule';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class CoingeckoService {
@@ -48,7 +50,10 @@ export class CoingeckoService {
     'maple',
   ];
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly httpService: HttpService,
+  ) {}
   // TODO: Uncomment the function before Release
   // @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
   /**
@@ -88,10 +93,11 @@ export class CoingeckoService {
             Array.from(map.values()),
           );
           this.COINS_LIST = Array.from(map.values());
+          this.saveInCache('coins', this.COINS_LIST);
           this.COINS_LIST.forEach((coin, index) => {
             setTimeout(() => {
               this.fetchDataForCoin(coin);
-            }, index * 12000); // Delay each request by 12 seconds to ensure rate limiting
+            }, index * 14000); // Delay each request by 14 seconds to ensure rate limiting
           });
         },
         error: (err) => {
@@ -109,14 +115,20 @@ export class CoingeckoService {
       })
       .subscribe({
         next: (res) => {
-          this.LOGGER.debug(
-            `Response received for ${coin}:`,
-            res.data.prices[0],
-          );
+          this.saveInCache(coin, res.data);
         },
         error: (err) => {
           this.LOGGER.error(`Error fetching data for ${coin}:`, err);
         },
       });
+  }
+  async saveInCache(coin, data) {
+    const prev = await this.cacheManager.get(coin);
+    if (prev) {
+      this.LOGGER.debug(`Removing Cache for ${coin}:`);
+      this.cacheManager.del(coin);
+    }
+    this.LOGGER.debug(`Response Cached for ${coin}:`);
+    await this.cacheManager.set(coin, data);
   }
 }
