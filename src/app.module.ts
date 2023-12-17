@@ -8,6 +8,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { DataService } from './data/data.service';
 import { DataController } from './data/data.controller';
 import { DataModule } from './data/data.module';
+import { CacheService } from './cache/cache.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { DataModule } from './data/data.module';
     DataModule,
   ],
   controllers: [AppController, DataController],
-  providers: [AppService, DataService],
+  providers: [AppService, DataService, CacheService],
 })
 export class AppModule {}

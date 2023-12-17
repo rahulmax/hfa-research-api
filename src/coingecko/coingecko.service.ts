@@ -1,8 +1,7 @@
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cache } from 'cache-manager';
-import { Cron } from '@nestjs/schedule';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Injectable, Logger } from '@nestjs/common';
+
+import { CacheService } from 'src/cache/cache.service';
 
 @Injectable()
 export class CoingeckoService {
@@ -51,8 +50,8 @@ export class CoingeckoService {
   ];
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly httpService: HttpService,
+    private readonly cacheService: CacheService
   ) {}
   // TODO: Uncomment the function before Release
   // @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
@@ -122,13 +121,13 @@ export class CoingeckoService {
         },
       });
   }
-  async saveInCache(coin, data) {
-    const prev = await this.cacheManager.get(coin);
+  async saveInCache(coin: string, data: any) {
+    const prev = await this.cacheService.get(coin);
     if (prev) {
       this.LOGGER.debug(`Removing Cache for ${coin}:`);
-      this.cacheManager.del(coin);
+      this.cacheService.delete(coin);
     }
     this.LOGGER.debug(`Response Cached for ${coin}:`);
-    await this.cacheManager.set(coin, data);
+    await this.cacheService.saveInCache(coin, data);
   }
 }
