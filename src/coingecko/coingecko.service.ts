@@ -5,107 +5,47 @@ import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class CoingeckoService {
   private readonly LOGGER = new Logger(CoingeckoService.name);
-  private readonly COINS_LIST = [
-    'bitcoin',
-    'ethereum',
-    'tether',
-    'binancecoin',
-    'ripple',
-    'solana',
-    'usd-coin',
-    'cardano',
-    'staked-ether',
-    'avalanche-2',
-    'dogecoin',
-    'polkadot',
-    'tron',
-    'chainlink',
-    'matic-network',
-    'wrapped-bitcoin',
-    'shiba-inu',
-    'litecoin',
-    'dai',
-    'internet-computer',
+  // Essential Coins Based on the Requirement
+  private COINS_LIST = [
     'uniswap',
-    'bitcoin-cash',
-    'stellar',
-    'okb',
-    'leo-token',
-    'cosmos',
-    'monero',
-    'ethereum-classic',
-    'filecoin',
-    'immutable-x',
-    'hedera-hashgraph',
-    'crypto-com-chain',
-    'injective-protocol',
-    'kaspa',
-    'aptos',
-    'true-usd',
-    'near',
-    'vechain',
-    'optimism',
-    'celestia',
-    'bittensor',
     'lido-dao',
-    'mantle',
-    'render-token',
-    'thorchain',
-    'first-digital-usd',
-    'quant-network',
-    'elrond-erd-2',
-    'algorand',
-    'aave',
-    'the-graph',
-    'arbitrum',
-    'blockstack',
-    'bonk',
-    'havven',
-    'rocket-pool-eth',
     'maker',
-    'bittorrent',
-    'binance-usd',
-    'wemix-token',
-    'fantom',
-    'flow',
-    'helium',
-    'theta-token',
-    'beam-2',
-    'the-sandbox',
-    'ordinals',
-    'kucoin-shares',
-    'osmosis',
-    'terra-luna',
-    'bitcoin-cash-sv',
-    'axie-infinity',
-    'decentraland',
-    'neo',
-    'gala',
-    'iota',
-    'eos',
-    'klay-token',
-    'tezos',
-    'dydx',
-    'kava',
-    'whitebit',
-    'mina-protocol',
-    'bitget-token',
-    'gatechain-token',
-    'arweave',
-    'usdd',
-    'woo-network',
-    'tokenize-xchange',
-    'cheelee',
-    'xdce-crowd-sale',
-    'fetch-ai',
-    'conflux-token',
-    'frax-ether',
+    'aave',
+    'compound-governance-token',
+    'havven',
     'frax-share',
-    'sui',
-    'ecash',
+    'chainlink',
+    'dydx',
+    'gmx',
+    'solana',
+    'avalanche-2',
+    'polkadot',
+    'cardano',
+    'cosmos',
+    'hedera-hashgraph',
+    'near',
+    'injective-protocol',
+    'optimism',
+    'arbitrum',
+    'matic-network',
+    'mantle',
+    'tether',
+    'usd-coin',
+    'dai',
+    'true-usd',
+    'binance-usd',
+    'first-digital-usd',
+    'usdd',
     'frax',
-    'apecoin',
-    'chiliz',
+    'tether-gold',
+    'paxos-standard',
+    'liquity-usd',
+    'paypal-usd',
+    'prisma-mkusd',
+    'canto',
+    'centrifuge',
+    'goldfinch',
+    'maple',
   ];
 
   constructor(private readonly httpService: HttpService) {}
@@ -115,11 +55,49 @@ export class CoingeckoService {
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
   getCoinGeckoData() {
-    this.COINS_LIST.forEach((coin, index) => {
-      setTimeout(() => {
-        this.fetchDataForCoin(coin);
-      }, index * 12000); // Delay each request by 12 seconds to ensure rate limiting
-    });
+    this.getTop100Coins();
+  }
+  getTop100Coins(
+    per_page: number = 100,
+    page: number = 1,
+    order: string = 'market_cap_desc',
+    currency: string = 'usd',
+    sparkline: boolean = false,
+    locale: string = 'en',
+  ) {
+    this.httpService
+      .get(`https://api.coingecko.com/api/v3/coins/markets`, {
+        params: {
+          vs_currency: currency,
+          order: order,
+          per_page: per_page,
+          page: page,
+          sparkline: sparkline,
+          locale: locale,
+        },
+      })
+      .subscribe({
+        next: (res) => {
+          const map = new Set<string>();
+          this.COINS_LIST.forEach((val) => map.add(val));
+          res.data.forEach((val) => {
+            map.add(val.id);
+          });
+          this.LOGGER.debug(
+            Array.from(map.values()).length,
+            Array.from(map.values()),
+          );
+          this.COINS_LIST = Array.from(map.values());
+          this.COINS_LIST.forEach((coin, index) => {
+            setTimeout(() => {
+              this.fetchDataForCoin(coin);
+            }, index * 12000); // Delay each request by 12 seconds to ensure rate limiting
+          });
+        },
+        error: (err) => {
+          this.LOGGER.error(`Error fetching data for Top 100`, err);
+        },
+      });
   }
   fetchDataForCoin(coin: string) {
     this.httpService
