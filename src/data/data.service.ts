@@ -11,9 +11,14 @@ export class DataService {
     return await this.cacheService.get('coins');
   }
 
-  async getCoinById(id: string) {
-    const data: any = await this.cacheService.get(id);
-    this.LOGGER.debug('Getting Data for the Id', id, data?.prices[0]);
-    return data;
+  async getCoinById(id: string, currency: string, days: number) {
+    this.LOGGER.debug('Getting Data for the Id', `Id : ${id} Currency : ${currency} days : ${days}`);
+    const data: any = await this.cacheService.get(`${id}_${currency}`);
+    const res = {
+      prices: data.prices.reverse().slice(0, days).reverse(),
+      market_caps: data.market_caps.reverse().slice(0, days).reverse(),
+      total_volumes: data.total_volumes.reverse().slice(0, days).reverse(),
+    };
+    return res;
   }
 }

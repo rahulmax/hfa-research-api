@@ -7,12 +7,17 @@ export class CoingeckoController {
 
   constructor(private readonly coinGeckoService: CoingeckoService) {}
   /**
-   * 
+   *
    * @returns Used to refresh the Data based on the User
    */
-  @Get('')
-  getCoinGeckoData() {
+  @Get('usd')
+  getCoinGeckoDataUSD() {
     this.coinGeckoService.getCoinGeckoData();
-    return 'coingecko';
+    return 'coingeckoUSD';
+  }
+  @Get('eth')
+  getCoinGeckoDataETH() {
+    this.coinGeckoService.getCoinGeckoDataEth();
+    return 'coingeckoETH';
   }
 }

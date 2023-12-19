@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 
 import { CacheService } from 'src/cache/cache.service';
 
@@ -54,18 +55,25 @@ export class CoingeckoService {
     private readonly cacheService: CacheService,
   ) {}
   // TODO: Uncomment the function before Release
-  // @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
+  @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
   getCoinGeckoData() {
     this.getTop100Coins();
   }
+  @Cron('30 1 * * *') // Specify the function to run Every day at 00:00 hours
+  /**
+   * @description Used to Get Coin Gecko Data Based on the Coins Array.
+   */
+  getCoinGeckoDataEth() {
+    this.getTop100Coins('eth');
+  }
   getTop100Coins(
+    currency: string = 'usd',
     per_page: number = 100,
     page: number = 1,
     order: string = 'market_cap_desc',
-    currency: string = 'usd',
     sparkline: boolean = false,
     locale: string = 'en',
   ) {
@@ -95,7 +103,7 @@ export class CoingeckoService {
           this.saveInCache('coins', this.COINS_LIST);
           this.COINS_LIST.forEach((coin, index) => {
             setTimeout(() => {
-              this.fetchDataForCoin(coin);
+              this.fetchDataForCoin(coin, currency);
             }, index * 14000); // Delay each request by 14 seconds to ensure rate limiting
           });
         },
@@ -104,17 +112,17 @@ export class CoingeckoService {
         },
       });
   }
-  fetchDataForCoin(coin: string) {
+  fetchDataForCoin(coin: string, currency: string) {
     this.httpService
       .get(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart`, {
         params: {
-          vs_currency: 'usd',
+          vs_currency: currency,
           days: 1825,
         },
       })
       .subscribe({
         next: (res) => {
-          this.saveInCache(coin, res.data);
+          this.saveInCache(`${coin}_${currency}`, res.data);
         },
         error: (err) => {
           this.LOGGER.error(`Error fetching data for ${coin}:`, err);
@@ -122,11 +130,11 @@ export class CoingeckoService {
       });
   }
   async saveInCache(coin: string, data: any) {
-    const prev = await this.cacheService.get(coin);
-    if (prev) {
-      this.LOGGER.debug(`Removing Cache for ${coin}:`);
-      this.cacheService.delete(coin);
-    }
+    // const prev = await this.cacheService.get(coin);
+    // if (prev) {
+    //   this.LOGGER.debug(`Removing Cache for ${coin}:`);
+    //   this.cacheService.delete(coin);
+    // }
     this.LOGGER.debug(`Response Cached for ${coin}:`);
     await this.cacheService.saveInCache(coin, data);
   }
