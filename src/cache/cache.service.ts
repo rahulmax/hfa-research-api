@@ -7,8 +7,8 @@ export class CacheService {
   private readonly LOGGER = new Logger(CacheService.name);
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  async saveInCache(coin: string, data: any) {
-    await this.cacheManager.set(coin, data);
+  async saveInCache(key: string, data: any) {
+    await this.cacheManager.set(key, data);
   }
 
   async delete(key: string) {

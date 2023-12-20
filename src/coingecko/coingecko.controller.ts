@@ -12,8 +12,7 @@ export class CoingeckoController {
    */
   @Get('usd')
   getCoinGeckoDataUSD() {
-    this.coinGeckoService.getCoinGeckoData();
-    return 'coingeckoUSD';
+    return this.coinGeckoService.getCoinGeckoData();
   }
   @Get('eth')
   getCoinGeckoDataETH() {

@@ -1,8 +1,8 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { CacheService } from 'src/cache/cache.service';
+import { HttpServiceService } from 'src/http-service/http-service.service';
 
 @Injectable()
 export class CoingeckoService {
@@ -49,9 +49,11 @@ export class CoingeckoService {
     'goldfinch',
     'maple',
   ];
+  maxDays: number = parseInt(process.env.maxDays);
+  apiDelay: number = parseInt(process.env.API_DELAY);
 
   constructor(
-    private readonly httpService: HttpService,
+    private readonly httpService: HttpServiceService,
     private readonly cacheService: CacheService,
   ) {}
   // TODO: Uncomment the function before Release
@@ -60,13 +62,15 @@ export class CoingeckoService {
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
   getCoinGeckoData() {
-    this.getTop100Coins();
+    this.LOGGER.debug('CRON STARTED USD');
+    return this.getTop100Coins();
   }
   @Cron('30 1 * * *') // Specify the function to run Every day at 00:00 hours
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
   getCoinGeckoDataEth() {
+    this.LOGGER.debug('CRON STARTED ETH');
     this.getTop100Coins('eth');
   }
   getTop100Coins(
@@ -79,14 +83,12 @@ export class CoingeckoService {
   ) {
     this.httpService
       .get(`https://api.coingecko.com/api/v3/coins/markets`, {
-        params: {
-          vs_currency: currency,
-          order: order,
-          per_page: per_page,
-          page: page,
-          sparkline: sparkline,
-          locale: locale,
-        },
+        vs_currency: currency,
+        order: order,
+        per_page: per_page,
+        page: page,
+        sparkline: sparkline,
+        locale: locale,
       })
       .subscribe({
         next: (res) => {
@@ -95,30 +97,26 @@ export class CoingeckoService {
           res.data.forEach((val) => {
             map.add(val.id);
           });
-          this.LOGGER.debug(
-            Array.from(map.values()).length,
-            Array.from(map.values()),
-          );
           this.COINS_LIST = Array.from(map.values());
           this.saveInCache('coins', this.COINS_LIST);
           this.COINS_LIST.forEach((coin, index) => {
             setTimeout(() => {
               this.fetchDataForCoin(coin, currency);
-            }, index * 14000); // Delay each request by 14 seconds to ensure rate limiting
+            }, index * this.apiDelay);
           });
+          return 'fetching data';
         },
         error: (err) => {
           this.LOGGER.error(`Error fetching data for Top 100`, err);
+          return 'Error fetching data';
         },
       });
   }
   fetchDataForCoin(coin: string, currency: string) {
     this.httpService
       .get(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart`, {
-        params: {
-          vs_currency: currency,
-          days: 1825,
-        },
+        vs_currency: currency,
+        days: this.maxDays,
       })
       .subscribe({
         next: (res) => {
@@ -130,11 +128,6 @@ export class CoingeckoService {
       });
   }
   async saveInCache(coin: string, data: any) {
-    // const prev = await this.cacheService.get(coin);
-    // if (prev) {
-    //   this.LOGGER.debug(`Removing Cache for ${coin}:`);
-    //   this.cacheService.delete(coin);
-    // }
     this.LOGGER.debug(`Response Cached for ${coin}:`);
     await this.cacheService.saveInCache(coin, data);
   }

@@ -11,11 +11,12 @@ import { DataModule } from './data/data.module';
 import { CacheService } from './cache/cache.service';
 import { redisStore } from 'cache-manager-redis-yet';
 import { ConfigModule } from '@nestjs/config';
-
+import { EtheriumGasModule } from './etherium_gas/etherium_gas.module';
+import { HttpServiceService } from './http-service/http-service.service';
+import { HttpServiceModule } from './http-service/http-service.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    CoingeckoModule,
     ScheduleModule.forRoot(),
     HttpModule,
     CacheModule.registerAsync({
@@ -32,8 +33,11 @@ import { ConfigModule } from '@nestjs/config';
       }),
     }),
     DataModule,
+    CoingeckoModule,
+    EtheriumGasModule,
+    HttpServiceModule,
   ],
   controllers: [AppController, DataController],
-  providers: [AppService, DataService, CacheService],
+  providers: [AppService, DataService, CacheService, HttpServiceService],
 })
 export class AppModule {}
