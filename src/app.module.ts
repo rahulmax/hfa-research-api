@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EtheriumGasModule } from './etherium_gas/etherium_gas.module';
 import { HttpServiceService } from './http-service/http-service.service';
 import { HttpServiceModule } from './http-service/http-service.module';
+import { DefiModule } from './defi/defi.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -36,6 +37,7 @@ import { HttpServiceModule } from './http-service/http-service.module';
     CoingeckoModule,
     EtheriumGasModule,
     HttpServiceModule,
+    DefiModule,
   ],
   controllers: [AppController, DataController],
   providers: [AppService, DataService, CacheService, HttpServiceService],
