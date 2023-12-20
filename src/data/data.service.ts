@@ -6,13 +6,16 @@ export class DataService {
   private readonly LOGGER = new Logger(DataService.name);
   constructor(private readonly cacheService: CacheService) {}
 
-  async getAllCoins() {
+  async getAllCoins(currency: string) {
     this.LOGGER.debug('Getting List of Coin Ids:');
-    return await this.cacheService.get('coins');
+    return await this.cacheService.get(`top100_coins_${currency}`);
   }
 
   async getCoinById(id: string, currency: string, days: number) {
-    this.LOGGER.debug('Getting Data for the Id', `Id : ${id} Currency : ${currency} days : ${days}`);
+    this.LOGGER.debug(
+      'Getting Data for the Id',
+      `Id : ${id} Currency : ${currency} days : ${days}`,
+    );
     const data: any = await this.cacheService.get(`${id}_${currency}`);
     const res = {
       prices: data.prices.reverse().slice(0, days).reverse(),

@@ -94,11 +94,12 @@ export class CoingeckoService {
         next: (res) => {
           const map = new Set<string>();
           this.COINS_LIST.forEach((val) => map.add(val));
-          res.data.forEach((val) => {
+          res.data.forEach((val: any) => {
             map.add(val.id);
           });
+          let top100Coins =res.data.map((val: any)=> val.id);
           this.COINS_LIST = Array.from(map.values());
-          this.saveInCache('coins', this.COINS_LIST);
+          this.saveInCache(`top100_coins_${currency}`, top100Coins);
           this.COINS_LIST.forEach((coin, index) => {
             setTimeout(() => {
               this.fetchDataForCoin(coin, currency);

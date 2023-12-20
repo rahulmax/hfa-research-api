@@ -5,9 +5,9 @@ import { DataService } from './data.service';
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
-  @Get()
-  findAll() {
-    return this.dataService.getAllCoins();
+  @Get('all/:currency')
+  findAll(@Param('currency') currency: string) {
+    return this.dataService.getAllCoins(currency);
   }
 
   @Get(':currency/:id/:days')
