@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { CacheService } from 'src/cache/cache.service';
 import { HttpServiceService } from 'src/http-service/http-service.service';
@@ -57,7 +57,7 @@ export class CoingeckoService {
     private readonly cacheService: CacheService,
   ) {}
   // TODO: Uncomment the function before Release
-  @Cron('0 0 * * *') // Specify the function to run Every day at 00:00 hours
+  @Cron(CronExpression.EVERY_2_HOURS)
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
@@ -65,13 +65,13 @@ export class CoingeckoService {
     this.LOGGER.debug('CRON STARTED USD');
     return this.getTop100Coins();
   }
-  @Cron('30 1 * * *') // Specify the function to run Every day at 00:00 hours
+  @Cron(CronExpression.EVERY_HOUR)
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
   getCoinGeckoDataEth() {
     this.LOGGER.debug('CRON STARTED ETH');
-    this.getTop100Coins('eth');
+    return this.getTop100Coins('eth');
   }
   getTop100Coins(
     currency: string = 'usd',
@@ -97,14 +97,20 @@ export class CoingeckoService {
           res.data.forEach((val: any) => {
             map.add(val.id);
           });
-          let top100Coins =res.data.map((val: any)=> val.id);
+          let top100Coins = res.data.map((val: any) => val.id);
           this.COINS_LIST = Array.from(map.values());
           this.saveInCache(`top100_coins_${currency}`, top100Coins);
-          this.COINS_LIST.forEach((coin, index) => {
-            setTimeout(() => {
+          let index = 0;
+          const intervalId = setInterval(() => {
+            if (index < this.COINS_LIST.length) {
+              const coin = this.COINS_LIST[index];
               this.fetchDataForCoin(coin, currency);
-            }, index * this.apiDelay);
-          });
+              this.LOGGER.debug(`Response Cached for ${coin}: index: ${index}`);
+              index++;
+            } else {
+              clearInterval(intervalId);
+            }
+          }, this.apiDelay);
           return 'fetching data';
         },
         error: (err) => {
@@ -129,7 +135,6 @@ export class CoingeckoService {
       });
   }
   async saveInCache(coin: string, data: any) {
-    this.LOGGER.debug(`Response Cached for ${coin}:`);
     await this.cacheService.saveInCache(coin, data);
   }
 }

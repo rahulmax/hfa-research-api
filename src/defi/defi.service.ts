@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { CacheService } from 'src/cache/cache.service';
 import { HttpServiceService } from 'src/http-service/http-service.service';
 
@@ -10,6 +11,7 @@ export class DefiService {
     private readonly cacheService: CacheService,
   ) {}
 
+  @Cron(CronExpression.EVERY_HOUR)
   saveDefiCoinsData() {
     this.httpService
       .get('https://api.llama.fi/v2/historicalChainTvl')
