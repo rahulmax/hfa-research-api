@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Post } from '@nestjs/common';
 import { CoingeckoService } from './coingecko.service';
 
 @Controller('coingecko')
@@ -10,13 +10,12 @@ export class CoingeckoController {
    *
    * @returns Used to refresh the Data based on the User
    */
-  @Get('usd')
+  @Post('usd')
   getCoinGeckoDataUSD() {
     return this.coinGeckoService.getCoinGeckoData();
   }
-  @Get('eth')
+  @Post('eth')
   getCoinGeckoDataETH() {
-    this.coinGeckoService.getCoinGeckoDataEth();
-    return 'coingeckoETH';
+    return this.coinGeckoService.getCoinGeckoDataEth();
   }
 }
