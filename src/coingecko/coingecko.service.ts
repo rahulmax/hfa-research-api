@@ -57,7 +57,7 @@ export class CoingeckoService {
     private readonly cacheService: CacheService,
   ) {}
   // TODO: Uncomment the function before Release
-  @Cron(CronExpression.EVERY_2_HOURS)
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
@@ -65,7 +65,7 @@ export class CoingeckoService {
     this.LOGGER.debug('CRON STARTED USD');
     return this.getTop100Coins();
   }
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.
    */
@@ -100,17 +100,18 @@ export class CoingeckoService {
           let top100Coins = res.data.map((val: any) => val.id);
           this.COINS_LIST = Array.from(map.values());
           this.saveInCache(`top100_coins_${currency}`, top100Coins);
-          let index = 0;
-          const intervalId = setInterval(() => {
-            if (index < this.COINS_LIST.length) {
-              const coin = this.COINS_LIST[index];
-              this.fetchDataForCoin(coin, currency);
-              this.LOGGER.debug(`Response Cached for ${coin}: index: ${index}`);
-              index++;
-            } else {
-              clearInterval(intervalId);
-            }
-          }, this.apiDelay);
+          this.fetchDataWithDelay(0, this.COINS_LIST, currency, this.apiDelay);
+          // let index = 0;
+          // const intervalId = setInterval(async () => {
+          //   if (index < this.COINS_LIST.length) {
+          //     const coin = this.COINS_LIST[index];
+          //     // await this.fetchDataForCoin(coin, currency);
+          //     index++;
+          //   } else {
+          //     clearInterval(intervalId);
+          //   }
+          // }, this.apiDelay);
+          this.LOGGER.debug(`Response Cached for Coingecko ${this.COINS_LIST}`);
           return 'fetching data';
         },
         error: (err) => {
@@ -118,6 +119,38 @@ export class CoingeckoService {
           return 'Error fetching data';
         },
       });
+  }
+  // {
+  //   if (index < coinsList.length) {
+  //     const coin = coinsList[index];
+  //     this.fetchDataForCoin(coin, currency);
+  //     this.LOGGER.debug(
+  //       `Response Cached for Coingecko ${coin}:${this.apiDelay}`,
+  //     );
+  //     setTimeout(() => {
+  //       this.fetchDataWithDelay(index + 1, coinsList, currency, apiDelay);
+  //     }, apiDelay);
+  //   }
+  // }
+  async fetchDataWithDelay(
+    index: number,
+    coinsList: Array<string>,
+    currency: string,
+    apiDelay: number,
+  ) {
+    if (index < coinsList.length) {
+      const coin = coinsList[index];
+      this.LOGGER.debug(
+        `Response Cached for Coingecko ${coin}:${this.apiDelay}`,
+      );
+      await this.fetchDataForCoin(coin, currency);
+
+      // Wait for the specified delay before making the next API call
+      await new Promise((resolve) => setTimeout(resolve, apiDelay));
+
+      // Make the next API call
+      await this.fetchDataWithDelay(index + 1, coinsList, currency, apiDelay);
+    }
   }
   fetchDataForCoin(coin: string, currency: string) {
     this.httpService
