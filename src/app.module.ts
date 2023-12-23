@@ -15,6 +15,7 @@ import { EtheriumGasModule } from './etherium_gas/etherium_gas.module';
 import { HttpServiceService } from './http-service/http-service.service';
 import { HttpServiceModule } from './http-service/http-service.module';
 import { DefiModule } from './defi/defi.module';
+import { YoutubeModule } from './youtube/youtube.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -38,6 +39,7 @@ import { DefiModule } from './defi/defi.module';
     EtheriumGasModule,
     HttpServiceModule,
     DefiModule,
+    YoutubeModule,
   ],
   controllers: [AppController, DataController],
   providers: [AppService, DataService, CacheService, HttpServiceService],

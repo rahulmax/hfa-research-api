@@ -101,16 +101,6 @@ export class CoingeckoService {
           this.COINS_LIST = Array.from(map.values());
           this.saveInCache(`top100_coins_${currency}`, top100Coins);
           this.fetchDataWithDelay(0, this.COINS_LIST, currency, this.apiDelay);
-          // let index = 0;
-          // const intervalId = setInterval(async () => {
-          //   if (index < this.COINS_LIST.length) {
-          //     const coin = this.COINS_LIST[index];
-          //     // await this.fetchDataForCoin(coin, currency);
-          //     index++;
-          //   } else {
-          //     clearInterval(intervalId);
-          //   }
-          // }, this.apiDelay);
           this.LOGGER.debug(`Response Cached for Coingecko ${this.COINS_LIST}`);
           return 'fetching data';
         },
@@ -120,18 +110,6 @@ export class CoingeckoService {
         },
       });
   }
-  // {
-  //   if (index < coinsList.length) {
-  //     const coin = coinsList[index];
-  //     this.fetchDataForCoin(coin, currency);
-  //     this.LOGGER.debug(
-  //       `Response Cached for Coingecko ${coin}:${this.apiDelay}`,
-  //     );
-  //     setTimeout(() => {
-  //       this.fetchDataWithDelay(index + 1, coinsList, currency, apiDelay);
-  //     }, apiDelay);
-  //   }
-  // }
   async fetchDataWithDelay(
     index: number,
     coinsList: Array<string>,
