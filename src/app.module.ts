@@ -16,6 +16,8 @@ import { HttpServiceService } from './http-service/http-service.service';
 import { HttpServiceModule } from './http-service/http-service.module';
 import { DefiModule } from './defi/defi.module';
 import { YoutubeModule } from './youtube/youtube.module';
+import { GraphqlModule } from './graphql/graphql.module';
+import { GovernanceModule } from './governance/governance.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -40,6 +42,8 @@ import { YoutubeModule } from './youtube/youtube.module';
     HttpServiceModule,
     DefiModule,
     YoutubeModule,
+    GraphqlModule,
+    GovernanceModule,
   ],
   controllers: [AppController, DataController],
   providers: [AppService, DataService, CacheService, HttpServiceService],
