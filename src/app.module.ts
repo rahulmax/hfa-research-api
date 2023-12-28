@@ -18,6 +18,8 @@ import { DefiModule } from './defi/defi.module';
 import { YoutubeModule } from './youtube/youtube.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { GovernanceModule } from './governance/governance.module';
+import { SocialModule } from './social/social.module';
+import { PoolsModule } from './pools/pools.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -44,6 +46,8 @@ import { GovernanceModule } from './governance/governance.module';
     YoutubeModule,
     GraphqlModule,
     GovernanceModule,
+    SocialModule,
+    PoolsModule,
   ],
   controllers: [AppController, DataController],
   providers: [AppService, DataService, CacheService, HttpServiceService],
