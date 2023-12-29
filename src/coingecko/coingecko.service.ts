@@ -119,7 +119,7 @@ export class CoingeckoService {
     if (index < coinsList.length) {
       const coin = coinsList[index];
       this.LOGGER.debug(
-        `Response Cached for Coingecko ${coin}:${this.apiDelay}`,
+        `Response Cached for Coingecko ${coin}:${index}`,
       );
       await this.fetchDataForCoin(coin, currency);
 

@@ -23,7 +23,6 @@ export class DefiService {
       });
   }
   getDefiCoinsData() {
-    this.LOGGER.log('Getting Defi Tvl Data');
     return this.cacheService.get('defi_tvl');
   }
 }

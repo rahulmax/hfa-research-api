@@ -11,7 +11,7 @@ export class EtheriumGasService {
     private readonly cacheServie: CacheService,
   ) {}
 
-  @Cron(CronExpression.EVERY_3_HOURS)
+  @Cron(CronExpression.EVERY_HOUR)
   EthariumGasData() {
     this.httpService
       .get('https://api.blocknative.com/gasprices/by-date')
@@ -26,7 +26,6 @@ export class EtheriumGasService {
       });
   }
   getEthariumGasData() {
-    this.LOGGER.log('Getting Gasprices Data');
     return this.cacheServie.get("gasprices");
   }
 }

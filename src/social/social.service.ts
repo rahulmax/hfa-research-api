@@ -35,9 +35,9 @@ export class SocialService {
     ].forEach((val) => {
       this.httpservice
         .get(`https://matrix.sbapis.com/b/youtube/statistics`, {
-          clientid: 'cli_a71f8ef72d127c603a528c88',
+          clientid: process.env.MATRIX_CLIENTID,
           token:
-            '0c2596b7d252a445351653e52d63eb135ea2d60c06b274ad112f3c90684a9ea72860ae2885d257e9a35cf236fcc80aae0b4fb9c4d7c15ce12fa20cf349934327',
+            process.env.MATRIX_TOKEN,
           query: val,
           history: 'archive',
         })
