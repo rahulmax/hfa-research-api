@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { DateTime } from 'luxon';
 
 import { CacheService } from 'src/cache/cache.service';
 import { HttpServiceService } from 'src/http-service/http-service.service';
@@ -51,6 +52,7 @@ export class CoingeckoService {
   ];
   maxDays: number = parseInt(process.env.maxDays);
   apiDelay: number = parseInt(process.env.API_DELAY);
+  timeZone = 'Asia/kolkata';
 
   constructor(
     private readonly httpService: HttpServiceService,
@@ -118,9 +120,6 @@ export class CoingeckoService {
   ) {
     if (index < coinsList.length) {
       const coin = coinsList[index];
-      this.LOGGER.debug(
-        `Response Cached for Coingecko ${coin}:${index}`,
-      );
       await this.fetchDataForCoin(coin, currency);
 
       // Wait for the specified delay before making the next API call
@@ -138,7 +137,16 @@ export class CoingeckoService {
       })
       .subscribe({
         next: (res) => {
-          this.saveInCache(`${coin}_${currency}`, res.data);
+          const data = res.data;
+          const prices = this.getTime(data.prices, this.maxDays);
+          const marketCap = this.getTime(data.market_caps, this.maxDays);
+          const totalVol = this.getTime(data.total_volumes, this.maxDays);
+          this.saveInCache(`${coin}_${currency}`, {
+            prices: prices,
+            market_caps: marketCap,
+            total_volumes: totalVol,
+          });
+          this.LOGGER.debug(`Response Cached for Coingecko ${coin}`);
         },
         error: (err) => {
           this.LOGGER.error(`Error fetching data for ${coin}:`, err);
@@ -147,5 +155,40 @@ export class CoingeckoService {
   }
   async saveInCache(coin: string, data: any) {
     await this.cacheService.saveInCache(coin, data);
+  }
+  getTime(dailyData: Array<Array<number>>, days: number) {
+    const startDate = DateTime.now()
+      .setZone(this.timeZone)
+      .minus({ days })
+      .startOf('day');
+    const resultData = new Array(days);
+
+    // Pre-calculate timestamps for the entire range
+    const timestamps = Array.from({ length: days }, (_, i) =>
+      startDate.plus({ days: i }).toMillis(),
+    );
+
+    // Create a Map for faster lookup
+    const dailyDataMap = new Map(
+      dailyData.map(([timestamp, value]) => [
+        DateTime.fromMillis(timestamp)
+          .setZone(this.timeZone)
+          .startOf('day')
+          .toMillis(),
+        [timestamp, value],
+      ]),
+    );
+
+    for (let i = 0; i < days; i++) {
+      const currentTimestamp = timestamps[i];
+
+      if (dailyDataMap.has(currentTimestamp)) {
+        resultData[i] = dailyDataMap.get(currentTimestamp);
+      } else {
+        resultData[i] = [currentTimestamp, 0];
+      }
+    }
+
+    return resultData;
   }
 }
