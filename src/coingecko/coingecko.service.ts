@@ -164,10 +164,9 @@ export class CoingeckoService {
     const resultData = new Array(days);
 
     // Pre-calculate timestamps for the entire range
-    const timestamps = Array.from({ length: days }, (_, i) =>
+    const timestamps = Array.from({ length: days + 1 }, (_, i) =>
       startDate.plus({ days: i }).toMillis(),
     );
-
     // Create a Map for faster lookup
     const dailyDataMap = new Map(
       dailyData.map(([timestamp, value]) => [
@@ -179,7 +178,7 @@ export class CoingeckoService {
       ]),
     );
 
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i <= days; i++) {
       const currentTimestamp = timestamps[i];
 
       if (dailyDataMap.has(currentTimestamp)) {
