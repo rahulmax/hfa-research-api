@@ -32,6 +32,7 @@ import { PoolsModule } from './pools/pools.module';
           socket: {
             host: process.env.REDIS_HOST,
             port: parseInt(process.env.REDIS_PORT, 10),
+            tls: true
           },
           password: process.env.RADIUS_PASSWORD,
         }),
