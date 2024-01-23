@@ -58,7 +58,6 @@ export class CoingeckoService {
     private readonly httpService: HttpServiceService,
     private readonly cacheService: CacheService,
   ) {}
-  // TODO: Uncomment the function before Release
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   /**
    * @description Used to Get Coin Gecko Data Based on the Coins Array.

@@ -27,17 +27,32 @@ import { PoolsModule } from './pools/pools.module';
     HttpModule,
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async () => ({
-        store: await redisStore({
-          socket: {
-            host: process.env.REDIS_HOST,
-            port: parseInt(process.env.REDIS_PORT, 10),
-            tls: process.env.REDIS_TLS === "true"
-          },
-          password: process.env.RADIUS_PASSWORD,
-        }),
-        ttl: 24 * 60 * 60,
-      }),
+      useFactory: async () => {
+        try {
+          const redisStoreInstance = await redisStore({
+            socket: {
+              host: process.env.REDIS_HOST,
+              port: parseInt(process.env.REDIS_PORT, 10),
+              tls: process.env.REDIS_TLS === 'true',
+            },
+            password: process.env.REDIS_PASSWORD,
+          });
+          return {
+            store: redisStoreInstance,
+            ttl: 24 * 60 * 60,
+          };
+        } catch (error) {
+          console.error(
+            'Error connecting to Redis:',
+            error,
+            'host ',
+            process.env.REDIS_HOST,
+            parseInt(process.env.REDIS_PORT, 10),
+            process.env.REDIS_TLS,
+          );
+          throw error; // Rethrow the error to prevent the application from starting if Redis connection fails.
+        }
+      },
     }),
     DataModule,
     CoingeckoModule,
