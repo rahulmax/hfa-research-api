@@ -36,6 +36,7 @@ import { PoolsModule } from './pools/pools.module';
               tls: process.env.REDIS_TLS === 'true',
             },
             password: process.env.REDIS_PASSWORD,
+            username: process.env.RADIS_USERNAME
           });
           return {
             store: redisStoreInstance,

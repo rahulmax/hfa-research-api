@@ -43,7 +43,7 @@ export class SocialService {
           token: process.env.MATRIX_TOKEN,
           query: val,
           history: 'archive',
-          // 'allow-stale': true,
+          'allow-stale': true,
         })
         .subscribe({
           next: (res) => {
