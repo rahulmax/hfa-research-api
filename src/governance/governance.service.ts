@@ -31,7 +31,7 @@ export class GovernanceService {
             proposals(
                 first: 30
                 skip: 0
-                where: { space_in: ["${val}"], state: "active" }
+                where: { space_in: ["${val}"] }
                 orderDirection: desc
             ) {
                 title
