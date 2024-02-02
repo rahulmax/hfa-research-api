@@ -23,7 +23,7 @@ export class GovernanceService {
       'curve.eth',
       'arbitrumfoundation.eth',
       'frax.eth',
-      'uniswap',
+      'uniswapgovernance.eth',
     ].forEach((val) => {
       this.graphQlService
         .query(
