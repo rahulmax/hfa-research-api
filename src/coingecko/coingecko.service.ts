@@ -149,8 +149,23 @@ export class CoingeckoService {
         },
         error: (err) => {
           this.LOGGER.error(`Error fetching data for ${coin}:`, err);
+          this.handelErrorCoin(coin, currency);
         },
       });
+  }
+  async handelErrorCoin(coin: string, currency: string) {
+    const data: any = await this.cacheService.get(`${coin}_${currency}`);
+    if (data) {
+      this.LOGGER.debug(`Updated Today data to 0 since got Error on API ${coin} ${currency}`)
+      const prices = this.getTime(data.prices, this.maxDays);
+      const marketCap = this.getTime(data.market_caps, this.maxDays);
+      const totalVol = this.getTime(data.total_volumes, this.maxDays);
+      this.saveInCache(`${coin}_${currency}`, {
+        prices: prices,
+        market_caps: marketCap,
+        total_volumes: totalVol,
+      });
+    }
   }
   async saveInCache(coin: string, data: any) {
     await this.cacheService.saveInCache(coin, data);
