@@ -28,7 +28,7 @@ export class SocialService {
       'DrakeonDigital',
       'Dynamodefi',
       'Thecalculatorguy',
-      'kryptocove',
+      'UCAZ9PHafkZUFsGRsRPPWaxQ', //kryptocove
       'blocmates'
     ].forEach((val) => {
       this.httpservice
