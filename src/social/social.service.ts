@@ -16,7 +16,7 @@ export class SocialService {
   @Cron(CronExpression.EVERY_WEEK)
   saveSocialMetricsData() {
     [
-      'UCRvqjQPSeaWn-uEx-w0XOIg',
+      'UCRvqjQPSeaWn-uEx-w0XOIg', //ben
       'digitalassetnewsdan',
       'altcoin_daily',
       'CoinBureau',
@@ -24,18 +24,12 @@ export class SocialService {
       'CryptoBanterGroup',
       'InvestAnswers',
       'CryptosRUs',
-      'UCPC2iE2Yuj20m5Dimn-vVBg',
-      'thenifty',
-      'UCOaX0Vu-dWB7bNjFMnbBo2A',
-      'TheParallaxHQ',
-      'CryptoGorilla',
-      'UC7B3Y1yrg4S7mmgoR-NsfxA',
+      'UC7B3Y1yrg4S7mmgoR-NsfxA', //taiki
       'DrakeonDigital',
       'Dynamodefi',
       'Thecalculatorguy',
-      'ThorHartvigsen',
-      // // 'CeazorsSnackSandwich', // not needed
-      'UCVVX-7tHff75fRAEEEnZiAQ',
+      'kryptocove',
+      'blocmates'
     ].forEach((val) => {
       this.httpservice
         .get(`https://matrix.sbapis.com/b/youtube/statistics`, {
