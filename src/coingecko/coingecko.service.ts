@@ -49,6 +49,7 @@ export class CoingeckoService {
     'centrifuge',
     'goldfinch',
     'maple',
+    'jupiter-perpetuals-liquidity-provider-token'
   ];
   maxDays: number = parseInt(process.env.maxDays);
   apiDelay: number = parseInt(process.env.API_DELAY);
