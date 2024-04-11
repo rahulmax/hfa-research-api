@@ -49,7 +49,7 @@ export class CoingeckoService {
     'centrifuge',
     'goldfinch',
     'maple',
-    'jupiter-perpetuals-liquidity-provider-token'
+    'jupiter-perpetuals-liquidity-provider-token',
   ];
   maxDays: number = parseInt(process.env.maxDays);
   apiDelay: number = parseInt(process.env.API_DELAY);
@@ -132,6 +132,7 @@ export class CoingeckoService {
   fetchDataForCoin(coin: string, currency: string) {
     this.httpService
       .get(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart`, {
+        x_cg_demo_api_key: process.env.COINGECKO_API_KEY,
         vs_currency: currency,
         days: this.maxDays,
       })
@@ -157,7 +158,9 @@ export class CoingeckoService {
   async handelErrorCoin(coin: string, currency: string) {
     const data: any = await this.cacheService.get(`${coin}_${currency}`);
     if (data) {
-      this.LOGGER.debug(`Updated Today data to 0 since got Error on API ${coin} ${currency}`)
+      this.LOGGER.debug(
+        `Updated Today data to 0 since got Error on API ${coin} ${currency}`,
+      );
       const prices = this.getTime(data.prices, this.maxDays);
       const marketCap = this.getTime(data.market_caps, this.maxDays);
       const totalVol = this.getTime(data.total_volumes, this.maxDays);
